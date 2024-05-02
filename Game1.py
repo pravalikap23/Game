@@ -68,7 +68,7 @@ while running:
     for en in all_sprites:
         screen.blit(en.surf, en.rect)
 
-    screen.fill((255,255,255))
+    screen.fill((0,0,0))
     pygame.display.flip()
 
 pygame.quit()
