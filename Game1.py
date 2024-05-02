@@ -1,5 +1,7 @@
 import pygame
 import random
+import PIL
+
 from pygame.locals import(
     KEYDOWN,
     K_ESCAPE,
@@ -17,10 +19,11 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         #self.surf = pygame.Surface((75,25))
         #self.surf.fill((0,255,0))
-        self.surf = pygame.image.load("ninja.jpg").convert()
+        self.surf = pygame.image.load("amongus.png").convert()
         self.surf.set_colorkey((0,0,0))
         self.rect = self.surf.get_rect()
-    
+        # pygame.transform.scale(self.surf, (16, 32))
+
     def update(self, pressed_keys):
         if pressed_keys[K_UP]:
             self.rect.move_ip(0,-1)
@@ -40,8 +43,10 @@ class Player(pygame.sprite.Sprite):
         elif self.rect.bottom > sh:
             self.rect.bottom = sh
 
-sw = 1280
+# Screen width and height
+sw = 1110
 sh = 720
+
 score = 10
 screen = pygame.display.set_mode([sw,sh])
 ADDENEMY = pygame.USEREVENT + 1
@@ -65,10 +70,11 @@ while running:
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
 
+    screen.fill((173,216,230))
+
     for en in all_sprites:
         screen.blit(en.surf, en.rect)
 
-    screen.fill((0,0,0))
     pygame.display.flip()
 
 pygame.quit()
