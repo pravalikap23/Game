@@ -85,17 +85,18 @@ all_sprites.add(player)
 running = True
 while running:
     for event in pygame.event.get():
-        if event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
-                running = False
+        # if event.type == KEYDOWN:
+        #     if event.key == K_ESCAPE:
+        #         running = False
         
-        elif event.type == pygame.QUIT:
+        if event.type == pygame.QUIT:
             running = False
 
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
 
     screen.fill((173,216,230))
+    pygame.draw.rect(screen, (255, 0, 0), (35, sh-15, sw, 15), width = 0)
 
     for en in all_sprites:
         screen.blit(en.surf, en.rect)
