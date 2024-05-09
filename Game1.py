@@ -5,8 +5,8 @@ import PIL
 from pygame.locals import(
     KEYDOWN,
     K_ESCAPE,
-    K_UP,
-    K_DOWN,
+    # K_UP,
+    # K_DOWN,
     K_LEFT,
     K_RIGHT,
 )
@@ -19,20 +19,46 @@ class Player(pygame.sprite.Sprite):
         super(Player, self).__init__()
         #self.surf = pygame.Surface((75,25))
         #self.surf.fill((0,255,0))
-        self.surf = pygame.image.load("amongus.png").convert()
+        self.surf = pygame.image.load("assets/amongus.png").convert_alpha()
         self.surf.set_colorkey((0,0,0))
-        self.rect = self.surf.get_rect()
+        self.rect = self.surf.get_rect(
+            center = (0, 300)
+        )
+        self.jump = False
+        self.fall_down = False
+
+        self.jump_height = 20
+        self.jump_vel = 1
+        self.jump_start_y = None
+        self.gravity = 5
         # pygame.transform.scale(self.surf, (16, 32))
 
     def update(self, pressed_keys):
-        if pressed_keys[K_UP]:
-            self.rect.move_ip(0,-1)
-        elif pressed_keys[K_DOWN]:
-            self.rect.move_ip(0,1)
-        elif pressed_keys[K_LEFT]:
+        # if pressed_keys[K_DOWN]:
+        #     self.rect.move_ip(0,1)
+        if pressed_keys[K_LEFT]:
             self.rect.move_ip(-1,0)
         elif pressed_keys[K_RIGHT]:
             self.rect.move_ip(1,0)
+        elif pressed_keys[pygame.K_SPACE]:
+            self.jump = True
+            self.jump_start_y = self.rect.y
+            # self.rect.move_ip(0,-1)
+
+        if self.jump:
+            if self.rect.y >= (self.jump_start_y + self.jump_height):
+                self.jump = True
+                self.fall_down = True
+                
+            if self.rect.y <= (self.jump_start_y + self.jump_height):
+                self.rect.move_ip(0,-1)
+                    # self.fall_down = True
+        # if self.fall_down:
+        #     self.jump = False
+        #     if (self.rect.y >= self.jump_start_y):
+        #         self.rect.y -= self.gravity
+        if not self.jump:
+            self.rect.move_ip(0, 1)
 
         if self.rect.left < 0:
             self.rect.left = 0
@@ -44,8 +70,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = sh
 
 # Screen width and height
-sw = 1110
-sh = 720
+sw = 1000
+sh = 350
 
 score = 10
 screen = pygame.display.set_mode([sw,sh])
@@ -57,7 +83,6 @@ all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 
 running = True
-
 while running:
     for event in pygame.event.get():
         if event.type == KEYDOWN:
