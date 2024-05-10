@@ -59,7 +59,6 @@ class Player(pygame.sprite.Sprite):
         elif self.rect.bottom > sh:
             self.rect.bottom = sh
         
-
 sw = 1280
 sh = 720
 score = 10

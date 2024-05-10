@@ -27,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.jump = False
         self.fall_down = False
 
-        self.jump_height = 20
+        self.jump_height = -20
         self.jump_vel = 1
         self.jump_start_y = None
         self.gravity = 5
@@ -40,25 +40,29 @@ class Player(pygame.sprite.Sprite):
             self.rect.move_ip(-1,0)
         elif pressed_keys[K_RIGHT]:
             self.rect.move_ip(1,0)
-        elif pressed_keys[pygame.K_SPACE]:
+        elif pressed_keys[pygame.K_SPACE] and self.jump == False and self.fall_down == False:
             self.jump = True
             self.jump_start_y = self.rect.y
             # self.rect.move_ip(0,-1)
 
         if self.jump:
-            if self.rect.y >= (self.jump_start_y + self.jump_height):
-                self.jump = True
-                self.fall_down = True
-                
             if self.rect.y <= (self.jump_start_y + self.jump_height):
-                self.rect.move_ip(0,-1)
+                self.jump = False
+                self.fall_down = True
+                #print("here")
+                
+            #if self.rect.y >= (self.jump_start_y + self.jump_height):
+            self.rect.move_ip(0,-1)
                     # self.fall_down = True
         # if self.fall_down:
         #     self.jump = False
         #     if (self.rect.y >= self.jump_start_y):
         #         self.rect.y -= self.gravity
-        if not self.jump:
-            self.rect.move_ip(0, 1)
+        if self.fall_down:
+            self.rect.move_ip(0,1)
+            if not self.rect.y <= self.jump_start_y:
+                self.fall_down = False
+            
 
         if self.rect.left < 0:
             self.rect.left = 0
