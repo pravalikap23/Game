@@ -85,7 +85,7 @@ while run:
     # Background
     screen.fill((173,216,230))
 
-    
+    # Brown
     pygame.draw.rect(screen, (111, 78, 55), (0, sh-15, sw,15), width = 0)
  
     # Draw lava
