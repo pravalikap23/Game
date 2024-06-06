@@ -67,7 +67,7 @@ class Player(pygame.sprite.Sprite):
  
 screen = pygame.display.set_mode((sw, sh))
 pygame.display.set_caption("Game")
- 
+
 player = Player()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
