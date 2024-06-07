@@ -1,5 +1,5 @@
 import pygame
-import random
+import time
  
 pygame.init()
 pygame.font.init()
@@ -9,7 +9,25 @@ sw = 1000
 sh = 350
  
 run = True
- 
+
+# Score
+score = 0
+
+# Time
+allocatedTime = 60
+startTime = time.time()
+gameOver = False
+
+while gameOver == False:
+    time.sleep(1)
+
+    elapsedTime = time.time() - startTime
+    if elapsedTime >= allocatedTime:
+        gameOver = True
+
+print("Game Over!")
+
+# Player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
@@ -58,7 +76,8 @@ class Player(pygame.sprite.Sprite):
  
         self.rect.x = x
         self.rect.y = y
- 
+
+# Lives
 class Live(pygame.sprite.Sprite):
     def __init__(self):
         super(Live, self).__init__()
@@ -152,9 +171,18 @@ while run:
             player.isJump = False
             player.jumpCount = 10
 
+    # Candy
     for candy in candies:
         screen.blit(candy.image, candy.rect)
- 
+        candy_rect = candy.rect
+        if player.rect.bottom > candy_rect.top and player.rect.centerx > candy_rect.left and player.rect.centerx < candy_rect.right:
+            score += 1
+            candies.remove(candy)
+
+    my_font = pygame.font.SysFont('Comic Sans MS', 20)
+    text_surface = my_font.render(f"Score: {score}", False, (0, 0, 0))
+    screen.blit(text_surface, (150,5))
+
     # Draw player
     screen.blit(player.surf, player.rect)
  
