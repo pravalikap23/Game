@@ -232,8 +232,8 @@ while run:
         font = pygame.font.SysFont('arial', 40)
         if won:
             game_over_text = font.render('You Win!', True, (255, 255, 255))
-        else:
-            game_over_text = font.render('Game over!', True, (255, 255, 255))
+        game_over_text = font.render('Game over!', True, (255, 255, 255))
+        
         screen.blit(game_over_text, (sw/2 - game_over_text.get_width()/2, 0))
 
         font = pygame.font.SysFont('arial', 25)
