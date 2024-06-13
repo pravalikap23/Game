@@ -1,119 +1,110 @@
 import pygame
 import random
-from pygame.locals import (
-    KEYDOWN,
-    K_ESCAPE,
-    K_UP,
-    K_DOWN,
-    K_LEFT,
-    K_RIGHT,
-    )
-
+import PIL
+ 
 pygame.init()
 pygame.font.init()
-
-class Enemy(pygame.sprite.Sprite):
-    def __init__(self):
-        super(Enemy, self).__init__()
-        #self.surf = pygame.Surface((20,10))
-        #self.surf.fill((255,0,0))
-        self.surf = pygame.image.load("missile2.png").convert()
-        self.surf.set_colorkey((0,0,0))
-        self.rect = self.surf.get_rect(
-            center = (random.randint(sw + 20, sw + 100), random.randint(0,sh))
-            )
-        self.speed = random.randint(1,1)
-
-    def update(self):
-        global score
-        self.rect.move_ip(-self.speed,0)
-        if self.rect.right < 0:
-            self.kill()
-            score += 1
-
+ 
+# Screen width and height
+sw = 1000
+sh = 350
+ 
+run = True
+ 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        #self.surf = pygame.Surface((75,25))
-        #self.surf.fill((0,255,0))
-        self.surf = pygame.image.load("jet3.png").convert()
-        self.surf.set_colorkey((0,0,0))
+        self.surf = pygame.image.load("assets/amongus.png").convert_alpha()
+        self.surf.set_colorkey((0, 0, 0))
         self.rect = self.surf.get_rect()
-
-    def update(self, pressed_keys):
-        if pressed_keys[K_UP]:
-            self.rect.move_ip(0,-1)
-        elif pressed_keys[K_DOWN]:
-            self.rect.move_ip(0,1)
-        elif pressed_keys[K_LEFT]:
-            self.rect.move_ip(-1,0)
-        elif pressed_keys[K_RIGHT]:
-            self.rect.move_ip(1,0)
-
-        if self.rect.left < 0:
-            self.rect.left = 0
-        elif self.rect.right > sw:
-            self.rect.right = sw
-        elif self.rect.top < 0:
-            self.rect.top = 0
-        elif self.rect.bottom > sh:
-            self.rect.bottom = sh
-        
-sw = 1280
-sh = 720
-score = 10
-screen = pygame.display.set_mode([sw,sh])
-ADDENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDENEMY, 250)
-
-my_font = pygame.font.SysFont('Comic Sans MS', 20)
+        self.isJump = False
+        self.jumpCount = 10
+        self.vel = 7
+ 
+        self.rect.x = 0
+        self.rect.y = sh - self.rect.height
+        self.ground_level = self.rect.y
+ 
+    def update(self, keys):
+        x = self.rect.x
+        y = self.rect.y
+ 
+        if keys[pygame.K_LEFT] and x > self.vel:
+            x -= self.vel
+ 
+        if keys[pygame.K_RIGHT] and x < sw - self.rect.width - self.vel:
+            x += self.vel
+ 
+        if not self.isJump:
+            # Remove the up key condition
+            # if keys[pygame.K_UP] and y > self.vel:
+            #     y -= self.vel
+ 
+            if keys[pygame.K_DOWN] and y < sh - self.rect.height - self.vel:
+                y += self.vel
+ 
+            if keys[pygame.K_SPACE]:
+                self.isJump = True
+        else:
+            if self.jumpCount >= -10:
+                neg = 1
+                if self.jumpCount < 0:
+                    neg = -1
+                y -= (self.jumpCount ** 2) * 0.5 * neg
+                self.jumpCount -= 1
+            else:
+                self.jumpCount = 10
+                self.isJump = False
+                y = self.ground_level
+ 
+        if y < 0:
+            y = 0
+        elif y > sh - self.rect.height:
+            y = sh - self.rect.height
+ 
+        self.rect.x = x
+        self.rect.y = y
+ 
+screen = pygame.display.set_mode((sw, sh))
+pygame.display.set_caption("Game")
 
 player = Player()
-
-enemies = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
-
-running = True
-
-while running:
+ 
+while run:
+    pygame.time.delay(50)
+ 
     for event in pygame.event.get():
-        if event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
-                running = False
-        
-        elif event.type == pygame.QUIT:
-            running = False
-
-        elif event.type == ADDENEMY:
-            new_enemy = Enemy()
-            enemies.add(new_enemy)
-            all_sprites.add(new_enemy)
-
+        if event.type == pygame.QUIT:
+            run = False
+ 
     pressed_keys = pygame.key.get_pressed()
     player.update(pressed_keys)
 
-    enemies.update()
-    
-    screen.fill((255,255,255))
-    #pygame.draw.circle(screen, (255,0,0),(sw/2,sh/2),100)
-    #surf = pygame.Surface((75,50))
-    #surf.fill((0,0,0))
-    for en in all_sprites:
-        screen.blit(en.surf, en.rect)
-##    if pygame.sprite.spritecollideany(player,enemies):
-##        player.kill()
-##        running = False
+    # Background
+    screen.fill((173,216,230))
 
-    if pygame.sprite.spritecollideany(player,enemies):
-        score -= 10
-        for entity in enemies:
-            entity.kill()
-    if score <= 0:
-        player.kill()
-        running = False
-    text_surface = my_font.render(str(score), False, (255, 0, 0))
-    screen.blit(text_surface, (sw-30,10))
+    # Brown
+    pygame.draw.rect(screen, (111, 78, 55), (0, sh-15, sw,15), width = 0)
+ 
+    # Draw lava
+    pygame.draw.rect(screen, (255, 0, 0), (45, sh-15, sw, 15), width = 0)
+ 
+    if player.rect.colliderect((45, sh-15, sw, 15)):
+        if pressed_keys[pygame.K_RIGHT]:
+            player.rect.bottomleft = (0, sh-15)
+ 
+    # Draw green rectangles (platforms)
+    pygame.draw.rect(screen, (34, 139, 24), (80, 300, 150, 100))
+    pygame.draw.rect(screen, (34, 139, 24), (290, 300, 150, 100))
+    pygame.draw.rect(screen, (34, 139, 24), (500, 300, 150, 100))
+    pygame.draw.rect(screen, (34, 139, 24), (700, 300, 150, 100))
+    pygame.draw.rect(screen, (34, 139, 24), (900, 300, 250, 100))
+ 
+    # Draw player
+    screen.blit(player.surf, player.rect)
+ 
     pygame.display.flip()
-
+ 
 pygame.quit()
