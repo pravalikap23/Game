@@ -1,15 +1,15 @@
 import pygame
 import time
 from threading import Thread
-
+ 
 run = True
-
+ 
 # Time
-allocatedTime = 31
+allocatedTime = 25
 startTime = time.time()
 gameOver = False
 seconds = 0
-
+ 
 def timer():
     global gameOver
     global startTime
@@ -20,14 +20,14 @@ def timer():
         if not gameOver:
             time.sleep(1)
             seconds += 1
-
+ 
             elapsedTime = time.time() - startTime
             if elapsedTime >= allocatedTime:
                 gameOver = True
-
+ 
 t = Thread(target=timer, daemon=True)
 t.start()
-
+ 
 pygame.init()
 pygame.font.init()
  
@@ -37,7 +37,7 @@ sh = 350
  
 # Score
 score = 0
-
+ 
 # Player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -46,7 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.surf.set_colorkey((0, 0, 0))
         self.rect = self.surf.get_rect()
         self.reset()
-
+ 
     def reset(self):
         self.isJump = False
         self.jumpCount = 10
@@ -57,7 +57,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x = self.start_x
         self.rect.y = self.start_y
         self.ground_level = self.start_y
-
+ 
     def update(self, keys):
         x = self.rect.x
         y = self.rect.y
@@ -90,7 +90,7 @@ class Player(pygame.sprite.Sprite):
  
         self.rect.x = x
         self.rect.y = y
-
+ 
 # Lives
 class Live(pygame.sprite.Sprite):
     def __init__(self):
@@ -107,7 +107,7 @@ class Candy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
+ 
 screen = pygame.display.set_mode((sw, sh))
 pygame.display.set_caption("Game")
  
@@ -122,7 +122,7 @@ platforms = [
     pygame.Rect(700, 300, 150, 100),
     pygame.Rect(900, 300, 250, 100),
 ]
-
+ 
 candies = []
  
 lava_rect = pygame.Rect(45, sh-15, sw, 15)
@@ -136,11 +136,11 @@ def reset():
     global elapsedTime
     global score
     global seconds
-
+ 
     elapsedTime = 0
     startTime = time.time()
     seconds = 0
-
+ 
     score = 0
     lives = 5
     live_sprites = pygame.sprite.Group()
@@ -157,23 +157,23 @@ def reset():
         Candy(730, 235),
         Candy(900, 235)
     ]
-
+ 
     player.reset()
-
+ 
 reset()
-
+ 
 won = False
-
+ 
 while run:
-    pygame.time.delay(50)
+    pygame.time.delay(45)
  
     if lives == 0:
         gameOver = True
-
+ 
     if len(candies) == 0:
         gameOver = True
         won = True
-
+ 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -209,7 +209,7 @@ while run:
                 player.rect.bottom = platform.top
                 player.isJump = False
                 player.jumpCount = 10
-
+ 
         # Candy
         for candy in candies:
             screen.blit(candy.image, candy.rect)
@@ -217,39 +217,40 @@ while run:
             if player.rect.bottom > candy_rect.top and player.rect.centerx > candy_rect.left and player.rect.centerx < candy_rect.right:
                 score += 1
                 candies.remove(candy)
-
+ 
         my_font = pygame.font.SysFont('Comic Sans MS', 20)
         text_surface = my_font.render(f"Score: {score} Time: {seconds}", False, (0, 0, 0))
         screen.blit(text_surface, (150,5))
-
+ 
         # Draw player
         screen.blit(player.surf, player.rect)
     
         # Draw lives
         live_sprites.draw(screen)
-
+ 
     if gameOver:
         font = pygame.font.SysFont('arial', 40)
         if won:
             game_over_text = font.render('You Win!', True, (255, 255, 255))
-        game_over_text = font.render('Game over!', True, (255, 255, 255))
-        
+        else:
+             game_over_text = font.render('Game over!', True, (255, 255, 255))
         screen.blit(game_over_text, (sw/2 - game_over_text.get_width()/2, 0))
-
-        font = pygame.font.SysFont('arial', 25)
+ 
+        font = pygame.font.SysFont('arial', 20)
         button_rect = pygame.Rect(sw/2-100/2, 55, 100, 30)
         pygame.draw.rect(screen, (255, 255, 255), button_rect, width = 0)
-  
+ 
         button_text = font.render('Start again', True, (0, 0, 0))
         screen.blit(button_text, button_rect)
-
+ 
         mouseX, mouseY = pygame.mouse.get_pos()
-
+ 
         if mouseX > button_rect.x and mouseX < button_rect.x + button_rect.width:
             if mouseY > button_rect.y and mouseY < button_rect.y + button_rect.height:
                 if pygame.mouse.get_pressed()[0]:
                     reset()
                     gameOver = False
+                    won = False
  
     pygame.display.flip()
  
